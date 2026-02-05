@@ -1,0 +1,11 @@
+# Navegar al directorio del proyecto
+cd servigo-app
+
+# Instalar dependencias
+npm install
+
+# Para React Native con Expo
+npx expo install
+
+# Iniciar el servidor de desarrollo
+npx expo start

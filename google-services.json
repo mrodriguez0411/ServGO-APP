@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "393790379577",
+    "project_id": "servgo-app",
+    "storage_bucket": "servgo-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:393790379577:android:9512812445069716bb9fe8",
+        "android_client_info": {
+          "package_name": "com.servgo.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAcRGO_JQuu5N_bsDoe2vziZ2seVCCqDmk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

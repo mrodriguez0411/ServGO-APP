@@ -1,0 +1,9 @@
+{
+  "/dashboard/page": "app/dashboard/page.js",
+  "/documentos/page": "app/documentos/page.js",
+  "/usuarios/page": "app/usuarios/page.js",
+  "/admin/usuarios/editar/page": "app/admin/usuarios/editar/page.js",
+  "/servicios/page": "app/servicios/page.js",
+  "/turnos/page": "app/turnos/page.js",
+  "/pagos/page": "app/pagos/page.js"
+}

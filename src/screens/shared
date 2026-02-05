@@ -1,0 +1,318 @@
+"use client"
+
+import { useState } from "react"
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Alert,
+} from "react-native"
+import { Ionicons } from "@expo/vector-icons"
+import { useAuth } from "../contexts/AuthContext"
+import { serviceCategories } from "../data/mockData"
+
+export default function EditProfileScreen({ navigation }: any) {
+  const { user, updateProfile } = useAuth()
+  const [formData, setFormData] = useState({
+    name: user?.name || "",
+    email: user?.email || "",
+    phone: user?.phone || "",
+    description: "",
+    hourlyRate: "",
+    services: [] as string[],
+  })
+  const [isLoading, setIsLoading] = useState(false)
+
+  const updateFormData = (field: string, value: string | string[]) => {
+    setFormData((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const toggleService = (serviceName: string) => {
+    const updatedServices = formData.services.includes(serviceName)
+      ? formData.services.filter((s) => s !== serviceName)
+      : [...formData.services, serviceName]
+    updateFormData("services", updatedServices)
+  }
+
+  const handleSave = async () => {
+    if (!formData.name || !formData.email || !formData.phone) {
+      Alert.alert("Error", "Por favor completa todos los campos obligatorios")
+      return
+    }
+
+    setIsLoading(true)
+    try {
+      const result = await updateProfile({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+      })
+
+      if (result.success) {
+        Alert.alert("Éxito", "Perfil actualizado correctamente", [{ text: "OK", onPress: () => navigation.goBack() }])
+      } else {
+        Alert.alert("Error", result.error || "Error al actualizar perfil")
+      }
+    } catch (error) {
+      Alert.alert("Error", "Error inesperado")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.keyboardView}>
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+            <Ionicons name="arrow-back" size={24} color="#475569" />
+          </TouchableOpacity>
+          <Text style={styles.title}>Editar Perfil</Text>
+          <TouchableOpacity style={styles.saveButton} onPress={handleSave} disabled={isLoading}>
+            <Text style={styles.saveButtonText}>{isLoading ? "Guardando..." : "Guardar"}</Text>
+          </TouchableOpacity>
+        </View>
+
+        <ScrollView style={styles.scrollView}>
+          <View style={styles.avatarSection}>
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>{formData.name.charAt(0).toUpperCase()}</Text>
+            </View>
+            <TouchableOpacity style={styles.changePhotoButton}>
+              <Text style={styles.changePhotoText}>Cambiar foto</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.form}>
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Nombre Completo *</Text>
+              <TextInput
+                style={styles.input}
+                value={formData.name}
+                onChangeText={(value) => updateFormData("name", value)}
+                placeholder="Tu nombre completo"
+              />
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Correo Electrónico *</Text>
+              <TextInput
+                style={styles.input}
+                value={formData.email}
+                onChangeText={(value) => updateFormData("email", value)}
+                placeholder="tu@email.com"
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Teléfono *</Text>
+              <TextInput
+                style={styles.input}
+                value={formData.phone}
+                onChangeText={(value) => updateFormData("phone", value)}
+                placeholder="+1 234 567 8900"
+                keyboardType="phone-pad"
+              />
+            </View>
+
+            {user?.userType === "provider" && (
+              <>
+                <View style={styles.inputContainer}>
+                  <Text style={styles.label}>Descripción de servicios</Text>
+                  <TextInput
+                    style={[styles.input, styles.textArea]}
+                    value={formData.description}
+                    onChangeText={(value) => updateFormData("description", value)}
+                    placeholder="Describe tu experiencia y servicios..."
+                    multiline
+                    numberOfLines={4}
+                    textAlignVertical="top"
+                  />
+                </View>
+
+                <View style={styles.inputContainer}>
+                  <Text style={styles.label}>Tarifa por hora (USD)</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={formData.hourlyRate}
+                    onChangeText={(value) => updateFormData("hourlyRate", value)}
+                    placeholder="25"
+                    keyboardType="numeric"
+                  />
+                </View>
+
+                <View style={styles.inputContainer}>
+                  <Text style={styles.label}>Servicios que ofreces</Text>
+                  <View style={styles.servicesGrid}>
+                    {serviceCategories.map((category) => (
+                      <TouchableOpacity
+                        key={category.id}
+                        style={[
+                          styles.serviceOption,
+                          formData.services.includes(category.name) && styles.serviceOptionSelected,
+                        ]}
+                        onPress={() => toggleService(category.name)}
+                      >
+                        <Ionicons
+                          name={category.icon as any}
+                          size={20}
+                          color={formData.services.includes(category.name) ? "#ffffff" : category.color}
+                        />
+                        <Text
+                          style={[
+                            styles.serviceOptionText,
+                            formData.services.includes(category.name) && styles.serviceOptionTextSelected,
+                          ]}
+                        >
+                          {category.name}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              </>
+            )}
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  )
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#ffffff",
+  },
+  keyboardView: {
+    flex: 1,
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 24,
+    paddingTop: 20,
+    paddingBottom: 16,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#f1f5f9",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  title: {
+    fontSize: 20,
+    fontFamily: "SpaceGrotesk-Bold",
+    color: "#475569",
+  },
+  saveButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    backgroundColor: "#059669",
+  },
+  saveButtonText: {
+    fontSize: 14,
+    fontFamily: "DMSans-Medium",
+    color: "#ffffff",
+  },
+  scrollView: {
+    flex: 1,
+  },
+  avatarSection: {
+    alignItems: "center",
+    paddingVertical: 32,
+  },
+  avatar: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "#059669",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  avatarText: {
+    fontSize: 32,
+    fontFamily: "SpaceGrotesk-Bold",
+    color: "#ffffff",
+  },
+  changePhotoButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    backgroundColor: "#f1f5f9",
+  },
+  changePhotoText: {
+    fontSize: 14,
+    fontFamily: "DMSans-Medium",
+    color: "#475569",
+  },
+  form: {
+    paddingHorizontal: 24,
+    paddingBottom: 32,
+  },
+  inputContainer: {
+    marginBottom: 24,
+  },
+  label: {
+    fontSize: 14,
+    fontFamily: "DMSans-Medium",
+    color: "#475569",
+    marginBottom: 8,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#d1d5db",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    fontSize: 16,
+    fontFamily: "DMSans-Regular",
+    backgroundColor: "#ffffff",
+  },
+  textArea: {
+    height: 100,
+    paddingTop: 16,
+  },
+  servicesGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+  },
+  serviceOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#e5e7eb",
+    backgroundColor: "#ffffff",
+    minWidth: "45%",
+  },
+  serviceOptionSelected: {
+    backgroundColor: "#059669",
+    borderColor: "#059669",
+  },
+  serviceOptionText: {
+    fontSize: 14,
+    fontFamily: "DMSans-Medium",
+    color: "#475569",
+    marginLeft: 8,
+  },
+  serviceOptionTextSelected: {
+    color: "#ffffff",
+  },
+})

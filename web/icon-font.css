@@ -1,0 +1,10 @@
+/* Load Ionicons for web */
+@font-face {
+  font-family: 'Ionicons';
+  src: url(https://cdnjs.cloudflare.com/ajax/libs/ionicons/5.5.2/ionicons/ionicons.woff2) format('woff2'),
+       url(https://cdnjs.cloudflare.com/ajax/libs/ionicons/5.5.2/ionicons/ionicons.woff) format('woff'),
+       url(https://cdnjs.cloudflare.com/ajax/libs/ionicons/5.5.2/ionicons/ionicons.ttf) format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
