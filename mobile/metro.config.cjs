@@ -44,6 +44,20 @@ config.resolver.nodeModulesPaths = [
   'node_modules'
 ];
 
+// Override server configuration to handle node:sea directory issue
+config.server = {
+  ...config.server,
+  enhanceMiddleware: (middleware) => {
+    return (req, res, next) => {
+      // Handle the node:sea directory creation issue
+      if (req.url && req.url.includes('node:sea')) {
+        return next();
+      }
+      return middleware(req, res, next);
+    };
+  }
+};
+
 // Ignore problematic paths and system directories
 config.watcher = {
   ...config.watcher,
